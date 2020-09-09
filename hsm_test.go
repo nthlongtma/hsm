@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	modulePath = "./module/libsofthsm2.so"
-	slotID     = 866444829
-	pin        = "12345678"
-	label      = "master-key"
+	modulePath  = "./module/libsofthsm2.so"
+	slotID      = 866444829
+	pin         = "12345678"
+	keyAESLabel = "aes-key"
+	keyRSALabel = "rsa-key"
 
 	plainText = "kbtg-tma team building"
 	iv        = "0123456789abcdef"
@@ -67,7 +68,7 @@ func TestGetInfo(t *testing.T) {
 	t.Logf("HSM information: %+v", info)
 }
 
-func TestCreateKey(t *testing.T) {
+func TestCreateAESKey(t *testing.T) {
 	ctx, err := GetContext(modulePath)
 	if err != nil {
 		t.Error(err)
@@ -80,11 +81,18 @@ func TestCreateKey(t *testing.T) {
 	}
 	defer FinishSession(ctx, ss)
 
-	_, err = CreateKey(ctx, ss, label)
+	k, err := CreateAESKey(ctx, ss, keyAESLabel)
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log("create key successfully")
+	t.Logf("create AES key successfully: %v", k)
+
+	// value := make([]byte, 0)
+	// atts, err := ctx.GetAttributeValue(ss, obj, []*pkcs11.Attribute{pkcs11.NewAttribute(pkcs11.CKA_VALUE, value)})
+	// if err != nil {
+	// 	t.Error(err)
+	// }
+	// t.Logf("attrs: %+v", atts)
 }
 
 func TestFindKeys(t *testing.T) {
@@ -100,12 +108,12 @@ func TestFindKeys(t *testing.T) {
 	}
 	defer FinishSession(ctx, ss)
 
-	_, err = CreateKey(ctx, ss, label)
+	_, err = CreateAESKey(ctx, ss, keyAESLabel)
 	if err != nil {
 		t.Error(err)
 	}
 
-	objs, err := FindKeys(ctx, ss, pkcs11.CKO_SECRET_KEY, label)
+	objs, err := FindKeys(ctx, ss, pkcs11.CKO_SECRET_KEY, keyAESLabel)
 	if err != nil {
 		t.Error(err)
 	}
@@ -125,7 +133,7 @@ func TestRemoveKey(t *testing.T) {
 	}
 	defer FinishSession(ctx, ss)
 
-	obj, err := CreateKey(ctx, ss, label)
+	obj, err := CreateAESKey(ctx, ss, keyAESLabel)
 	if err != nil {
 		t.Error(err)
 	}
@@ -136,7 +144,7 @@ func TestRemoveKey(t *testing.T) {
 	t.Log("remove key successfully")
 }
 
-func TestEncrypt(t *testing.T) {
+func TestSymmetricEncrypt(t *testing.T) {
 	ctx, err := GetContext(modulePath)
 	if err != nil {
 		t.Error(err)
@@ -149,28 +157,31 @@ func TestEncrypt(t *testing.T) {
 	}
 	defer FinishSession(ctx, ss)
 
-	obj, err := CreateKey(ctx, ss, label)
+	obj, err := CreateAESKey(ctx, ss, keyAESLabel)
 	if err != nil {
 		t.Error(err)
 	}
 
 	t.Run("Encrypt", func(t *testing.T) {
-		// t.Run("ECB", func(t *testing.T) {
-		// 	cipher, err := Encryption(ctx, ss, obj, pkcs11.CKM_AES_ECB, []byte(plainText), []byte(iv))
-		// 	if err != nil {
-		// 		t.Error(err)
-		// 	}
-		// 	t.Logf("ECB result: %s", cipher)
-		// })
-		// t.Run("CBC", func(t *testing.T) {
-		// 	cipher, err := Encryption(ctx, ss, obj, pkcs11.CKM_AES_CBC, []byte(plainText), []byte(iv))
-		// 	if err != nil {
-		// 		t.Error(err)
-		// 	}
-		// 	t.Logf("CBC result: %s", cipher)
-		// })
+		t.Run("ECB", func(t *testing.T) {
+			padPlainText, _ := pkcs7Pad([]byte(plainText), 32)
+			cipher, err := Encrypt(ctx, ss, obj, pkcs11.CKM_AES_ECB, padPlainText, []byte(iv))
+			if err != nil {
+				t.Error(err)
+			}
+			t.Logf("ECB result: %s", base64.StdEncoding.EncodeToString(cipher))
+		})
+		t.Run("CBC", func(t *testing.T) {
+			padPlainText, _ := pkcs7Pad([]byte(plainText), 32)
+			cipher, err := Encrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC, padPlainText, []byte(iv))
+			if err != nil {
+				t.Error(err)
+			}
+
+			t.Logf("CBC result: %s", base64.StdEncoding.EncodeToString(cipher))
+		})
 		t.Run("CBC-PAD", func(t *testing.T) { // auto pading
-			cipher, err := Encryption(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, []byte(plainText), []byte(iv))
+			cipher, err := Encrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, []byte(plainText), []byte(iv))
 			if err != nil {
 				t.Error(err)
 			}
@@ -179,7 +190,7 @@ func TestEncrypt(t *testing.T) {
 	})
 }
 
-func TestDecrypt(t *testing.T) {
+func TestSymmetricDecrypt(t *testing.T) {
 	ctx, err := GetContext(modulePath)
 	if err != nil {
 		t.Error(err)
@@ -192,34 +203,58 @@ func TestDecrypt(t *testing.T) {
 	}
 	defer FinishSession(ctx, ss)
 
-	obj, err := CreateKey(ctx, ss, label)
+	obj, err := CreateAESKey(ctx, ss, keyAESLabel)
 	if err != nil {
 		t.Error(err)
 	}
 
-	t.Run("Encrypt", func(t *testing.T) {
-		// t.Run("ECB", func(t *testing.T) {
-		// 	cipher, err := Encryption(ctx, ss, obj, pkcs11.CKM_AES_ECB, []byte(plainText), []byte(iv))
-		// 	if err != nil {
-		// 		t.Error(err)
-		// 	}
-		// 	t.Logf("ECB result: %s", cipher)
-		// })
-		// t.Run("CBC", func(t *testing.T) {
-		// 	cipher, err := Encryption(ctx, ss, obj, pkcs11.CKM_AES_CBC, []byte(plainText), []byte(iv))
-		// 	if err != nil {
-		// 		t.Error(err)
-		// 	}
-		// 	t.Logf("CBC result: %s", cipher)
-		// })
+	t.Run("Decrypt", func(t *testing.T) {
+		t.Run("ECB", func(t *testing.T) { // auto pading
+			padded, _ := pkcs7Pad([]byte(plainText), 32)
+			cipher, err := Encrypt(ctx, ss, obj, pkcs11.CKM_AES_ECB, padded, []byte(iv))
+			if err != nil {
+				t.Error(err)
+			}
+			t.Logf("ECB result: %s", base64.StdEncoding.EncodeToString(cipher))
+
+			decrypted, err := Decrypt(ctx, ss, obj, pkcs11.CKM_AES_ECB, cipher, []byte(iv))
+			if err != nil {
+				t.Error(err)
+			}
+			unPadded, _ := pkcs7Unpad(decrypted, 32)
+			t.Logf("decrypted: %s", unPadded)
+
+			if bytes.Compare([]byte(plainText), unPadded) != 0 {
+				t.Error("missmatch")
+			}
+		})
+		t.Run("CBC", func(t *testing.T) { // auto pading
+			padded, _ := pkcs7Pad([]byte(plainText), 32)
+			cipher, err := Encrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC, padded, []byte(iv))
+			if err != nil {
+				t.Error(err)
+			}
+			t.Logf("CBC result: %s", base64.StdEncoding.EncodeToString(cipher))
+
+			decrypted, err := Decrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC, cipher, []byte(iv))
+			if err != nil {
+				t.Error(err)
+			}
+			unPadded, _ := pkcs7Unpad(decrypted, 32)
+			t.Logf("decrypted: %s", unPadded)
+
+			if bytes.Compare([]byte(plainText), unPadded) != 0 {
+				t.Error("missmatch")
+			}
+		})
 		t.Run("CBC-PAD", func(t *testing.T) { // auto pading
-			cipher, err := Encryption(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, []byte(plainText), []byte(iv))
+			cipher, err := Encrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, []byte(plainText), []byte(iv))
 			if err != nil {
 				t.Error(err)
 			}
 			t.Logf("CBC-PAD result: %s", base64.StdEncoding.EncodeToString(cipher))
 
-			decrypted, err := Decryption(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, cipher, []byte(iv))
+			decrypted, err := Decrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, cipher, []byte(iv))
 			if err != nil {
 				t.Error(err)
 			}
@@ -229,5 +264,64 @@ func TestDecrypt(t *testing.T) {
 				t.Error("missmatch")
 			}
 		})
+	})
+}
+
+func TestCreateRSAKeyPair(t *testing.T) {
+	ctx, err := GetContext(modulePath)
+	if err != nil {
+		t.Error(err)
+	}
+	defer FinishContext(ctx)
+
+	ss, err := GetSession(ctx, slotID, pin)
+	if err != nil {
+		t.Error(err)
+	}
+	defer FinishSession(ctx, ss)
+
+	pbk, pvk, err := CreateRSAKeyPair(ctx, ss, keyRSALabel)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("create RSA key pair successfully: %v - %v", pbk, pvk)
+}
+
+func TestSignAndVerify(t *testing.T) {
+	ctx, err := GetContext(modulePath)
+	if err != nil {
+		t.Error(err)
+	}
+	defer FinishContext(ctx)
+
+	ss, err := GetSession(ctx, slotID, pin)
+	if err != nil {
+		t.Error(err)
+	}
+	defer FinishSession(ctx, ss)
+
+	pbk, pvk, err := CreateRSAKeyPair(ctx, ss, keyAESLabel)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Run("Sign-Verify", func(t *testing.T) {
+		if err := ctx.SignInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_SHA1_RSA_PKCS, nil)}, pvk); err != nil {
+			t.Error(err)
+		}
+
+		sign, err := ctx.Sign(ss, []byte(plainText))
+		if err != nil {
+			t.Error(err)
+		}
+		t.Logf("sign successfully, signature: %s", base64.StdEncoding.EncodeToString(sign))
+
+		if err := ctx.VerifyInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_SHA1_RSA_PKCS, nil)}, pbk); err != nil {
+			t.Error(err)
+		}
+
+		if err := ctx.Verify(ss, []byte(plainText), sign); err != nil {
+			t.Error(err)
+		}
+		t.Log("verify successfully")
 	})
 }

@@ -7,8 +7,48 @@ import (
 	"github.com/gemalto/pkcs11"
 )
 
-// Symmetric encryption
-func Encryption(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, mech uint, plainText, iv []byte) ([]byte, error) {
+// RSA key pair
+func CreateRSAKeyPair(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, label string) (pkcs11.ObjectHandle, pkcs11.ObjectHandle, error) {
+	publicKeyTemplate := []*pkcs11.Attribute{
+		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_PUBLIC_KEY),
+		pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_RSA),
+		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
+		pkcs11.NewAttribute(pkcs11.CKA_VERIFY, true),
+		pkcs11.NewAttribute(pkcs11.CKA_ENCRYPT, true),
+		pkcs11.NewAttribute(pkcs11.CKA_PUBLIC_EXPONENT, []byte{1, 0, 1}),
+		pkcs11.NewAttribute(pkcs11.CKA_MODULUS_BITS, 2048),
+		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
+	}
+	privateKeyTemplate := []*pkcs11.Attribute{
+		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
+		pkcs11.NewAttribute(pkcs11.CKA_SIGN, true),
+		pkcs11.NewAttribute(pkcs11.CKA_SENSITIVE, true),
+		pkcs11.NewAttribute(pkcs11.CKA_EXTRACTABLE, true),
+		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
+	}
+	return ctx.GenerateKeyPair(ss,
+		[]*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN, nil)},
+		publicKeyTemplate, privateKeyTemplate)
+}
+
+// AES key
+func CreateAESKey(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, tokenLabel string) (pkcs11.ObjectHandle, error) {
+	aesKeyTemplate := []*pkcs11.Attribute{
+		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_SECRET_KEY), // O
+		pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_AES),     // O
+		pkcs11.NewAttribute(pkcs11.CKA_LABEL, tokenLabel),
+		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
+		pkcs11.NewAttribute(pkcs11.CKA_ENCRYPT, true),
+		pkcs11.NewAttribute(pkcs11.CKA_DECRYPT, true),
+		pkcs11.NewAttribute(pkcs11.CKA_SENSITIVE, true),
+		pkcs11.NewAttribute(pkcs11.CKA_EXTRACTABLE, true),
+		pkcs11.NewAttribute(pkcs11.CKA_VALUE_LEN, 32),
+	}
+	return ctx.GenerateKey(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_AES_KEY_GEN, nil)}, aesKeyTemplate)
+}
+
+// encryption
+func Encrypt(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, mech uint, plainText, iv []byte) ([]byte, error) {
 	if err := ctx.EncryptInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(mech, iv)}, key); err != nil {
 		return nil, err
 	}
@@ -21,8 +61,8 @@ func Encryption(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandl
 	return cipher, nil
 }
 
-// Symmetric encryption
-func Decryption(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, mech uint, cipher, iv []byte) ([]byte, error) {
+// decryption
+func Decrypt(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, mech uint, cipher, iv []byte) ([]byte, error) {
 	if err := ctx.DecryptInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(mech, iv)}, key); err != nil {
 		return nil, err
 	}
@@ -68,22 +108,6 @@ func FindKeys(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, keyClass uint, tokenLabe
 	}
 
 	return obj, nil
-}
-
-// AES key
-func CreateKey(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, tokenLabel string) (pkcs11.ObjectHandle, error) {
-	aesKeyTemplate := []*pkcs11.Attribute{
-		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_SECRET_KEY), // O
-		pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_AES),     // O
-		pkcs11.NewAttribute(pkcs11.CKA_LABEL, tokenLabel),
-		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
-		pkcs11.NewAttribute(pkcs11.CKA_ENCRYPT, true),
-		pkcs11.NewAttribute(pkcs11.CKA_DECRYPT, true),
-		pkcs11.NewAttribute(pkcs11.CKA_SENSITIVE, true),
-		pkcs11.NewAttribute(pkcs11.CKA_EXTRACTABLE, true),
-		pkcs11.NewAttribute(pkcs11.CKA_VALUE_LEN, 32),
-	}
-	return ctx.GenerateKey(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_AES_KEY_GEN, nil)}, aesKeyTemplate)
 }
 
 func GetContext(modulePath string) (*pkcs11.Ctx, error) {
