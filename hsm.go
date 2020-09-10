@@ -2,12 +2,13 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 
 	"github.com/gemalto/pkcs11"
 )
 
-// RSA key pair
+// RSA key pair: public and private key
 func CreateRSAKeyPair(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, label string) (pkcs11.ObjectHandle, pkcs11.ObjectHandle, error) {
 	publicKeyTemplate := []*pkcs11.Attribute{
 		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_PUBLIC_KEY),
@@ -34,12 +35,12 @@ func CreateRSAKeyPair(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, label string) (p
 		publicKeyTemplate, privateKeyTemplate)
 }
 
-// AES key
-func CreateAESKey(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, tokenLabel string) (pkcs11.ObjectHandle, error) {
+// secret key
+func CreateSecretKey(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, label string) (pkcs11.ObjectHandle, error) {
 	aesKeyTemplate := []*pkcs11.Attribute{
 		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_SECRET_KEY), // O
 		pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_AES),     // O
-		pkcs11.NewAttribute(pkcs11.CKA_LABEL, tokenLabel),
+		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
 		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
 		pkcs11.NewAttribute(pkcs11.CKA_ENCRYPT, true),
 		pkcs11.NewAttribute(pkcs11.CKA_DECRYPT, true),
@@ -85,9 +86,9 @@ func RemoveKey(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, obj pkcs11.ObjectHandle
 	return nil
 }
 
-func FindKeys(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, keyClass uint, tokenLabel string) ([]pkcs11.ObjectHandle, error) {
+func FindKeys(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, keyClass uint, label string) ([]pkcs11.ObjectHandle, error) {
 	searchTemplate := []*pkcs11.Attribute{
-		pkcs11.NewAttribute(pkcs11.CKA_LABEL, tokenLabel),
+		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
 		pkcs11.NewAttribute(pkcs11.CKA_CLASS, keyClass),
 	}
 
@@ -183,4 +184,9 @@ func pkcs7Unpad(b []byte, blocksize int) ([]byte, error) {
 		}
 	}
 	return b[:len(b)-n], nil
+}
+
+func ToJsonString(v interface{}) string {
+	b, _ := json.MarshalIndent(v, "", "")
+	return string(b)
 }
