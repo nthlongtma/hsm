@@ -451,3 +451,62 @@ func TestAsymmetric(t *testing.T) {
 		})
 	})
 }
+
+func TestCreateRSAKeyPair(t *testing.T) {
+	ctx, err := GetContext(modulePath)
+	if err != nil {
+		t.Error(err)
+	}
+	defer FinishContext(ctx)
+
+	ss, err := GetSession(ctx, slotID, pin)
+	if err != nil {
+		t.Error(err)
+	}
+	defer FinishSession(ctx, ss)
+
+	pbk, pvk, err := CreateRSAKeyPair(ctx, ss, keyRSALabel)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("create RSA key pair successfully: %v - %v", pbk, pvk)
+}
+
+func TestSignAndVerify(t *testing.T) {
+	ctx, err := GetContext(modulePath)
+	if err != nil {
+		t.Error(err)
+	}
+	defer FinishContext(ctx)
+
+	ss, err := GetSession(ctx, slotID, pin)
+	if err != nil {
+		t.Error(err)
+	}
+	defer FinishSession(ctx, ss)
+
+	pbk, pvk, err := CreateRSAKeyPair(ctx, ss, keyAESLabel)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Run("Sign-Verify", func(t *testing.T) {
+		if err := ctx.SignInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_SHA1_RSA_PKCS, nil)}, pvk); err != nil {
+			t.Error(err)
+		}
+
+		sign, err := ctx.Sign(ss, []byte(plainText))
+		if err != nil {
+			t.Error(err)
+		}
+		t.Logf("sign successfully, signature: %s", base64.StdEncoding.EncodeToString(sign))
+
+		if err := ctx.VerifyInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_SHA1_RSA_PKCS, nil)}, pbk); err != nil {
+			t.Error(err)
+		}
+
+		if err := ctx.Verify(ss, []byte(plainText), sign); err != nil {
+			t.Error(err)
+		}
+		t.Log("verify successfully")
+	})
+}
