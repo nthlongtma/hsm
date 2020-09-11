@@ -386,7 +386,7 @@ func TestSignAndVerify(t *testing.T) {
 
 	t.Run("Sign-Verify", func(t *testing.T) {
 		signature := []byte{}
-		t.Run("Sign", func(t *testing.T) {
+		t.Run("Sign", func(t *testing.T) { //sign with private key
 			if err := ctx.SignInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_SHA1_RSA_PKCS, nil)}, pvk); err != nil {
 				t.Error(err)
 			}
@@ -398,7 +398,7 @@ func TestSignAndVerify(t *testing.T) {
 			t.Logf("signature: %s", base64.StdEncoding.EncodeToString(signature))
 		})
 
-		t.Run("Verify", func(t *testing.T) {
+		t.Run("Verify", func(t *testing.T) { // verify with public key
 			if err := ctx.VerifyInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_SHA1_RSA_PKCS, nil)}, pbk); err != nil {
 				t.Error(err)
 			}
