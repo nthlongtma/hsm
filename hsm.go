@@ -2,117 +2,13 @@ package main
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"io"
 
 	"github.com/gemalto/pkcs11"
 )
-
-// RSA key pair: public and private key
-func CreateRSAKeyPair(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, label string) (pkcs11.ObjectHandle, pkcs11.ObjectHandle, error) {
-	publicKeyTemplate := []*pkcs11.Attribute{
-		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_PUBLIC_KEY),
-		pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_RSA),
-		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
-		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
-		pkcs11.NewAttribute(pkcs11.CKA_VERIFY, true),
-		pkcs11.NewAttribute(pkcs11.CKA_ENCRYPT, true),
-		pkcs11.NewAttribute(pkcs11.CKA_PUBLIC_EXPONENT, []byte{1, 0, 1}),
-		pkcs11.NewAttribute(pkcs11.CKA_MODULUS_BITS, 2048), // M
-	}
-	privateKeyTemplate := []*pkcs11.Attribute{
-		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_PRIVATE_KEY),
-		pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_RSA),
-		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
-		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
-		pkcs11.NewAttribute(pkcs11.CKA_SIGN, true),
-		pkcs11.NewAttribute(pkcs11.CKA_DECRYPT, true),
-		pkcs11.NewAttribute(pkcs11.CKA_SENSITIVE, true),
-		pkcs11.NewAttribute(pkcs11.CKA_EXTRACTABLE, true),
-	}
-	return ctx.GenerateKeyPair(ss,
-		[]*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN, nil)},
-		publicKeyTemplate, privateKeyTemplate)
-}
-
-// secret key
-func CreateSecretKey(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, label string) (pkcs11.ObjectHandle, error) {
-	aesKeyTemplate := []*pkcs11.Attribute{
-		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_SECRET_KEY), // O
-		pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_AES),     // O
-		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
-		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
-		pkcs11.NewAttribute(pkcs11.CKA_ENCRYPT, true),
-		pkcs11.NewAttribute(pkcs11.CKA_DECRYPT, true),
-		pkcs11.NewAttribute(pkcs11.CKA_SENSITIVE, true),
-		pkcs11.NewAttribute(pkcs11.CKA_EXTRACTABLE, true),
-		pkcs11.NewAttribute(pkcs11.CKA_VALUE_LEN, 32),
-	}
-	return ctx.GenerateKey(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_AES_KEY_GEN, nil)}, aesKeyTemplate)
-}
-
-// encryption
-func Encrypt(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, mech uint, plainText, iv []byte) ([]byte, error) {
-	if err := ctx.EncryptInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(mech, iv)}, key); err != nil {
-		return nil, err
-	}
-
-	cipher, err := ctx.Encrypt(ss, plainText)
-	if err != nil {
-		return nil, err
-	}
-
-	return cipher, nil
-}
-
-// decryption
-func Decrypt(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, mech uint, cipher, iv []byte) ([]byte, error) {
-	if err := ctx.DecryptInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(mech, iv)}, key); err != nil {
-		return nil, err
-	}
-
-	decrypted, err := ctx.Decrypt(ss, cipher)
-	if err != nil {
-		return nil, err
-	}
-
-	return decrypted, nil
-}
-
-func RemoveKey(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, obj pkcs11.ObjectHandle) error {
-	if err := ctx.DestroyObject(ss, obj); err != nil {
-		return fmt.Errorf("failed to remove key: %v", err)
-	}
-	return nil
-}
-
-func FindKeys(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, keyClass uint, label string) ([]pkcs11.ObjectHandle, error) {
-	searchTemplate := []*pkcs11.Attribute{
-		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
-		pkcs11.NewAttribute(pkcs11.CKA_CLASS, keyClass),
-	}
-
-	// init
-	if err := ctx.FindObjectsInit(ss, searchTemplate); err != nil {
-		return nil, fmt.Errorf("failed to init finding key: %v", err)
-	}
-
-	// finding
-	obj, _, err := ctx.FindObjects(ss, 1)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find key %v", err)
-	}
-	if len(obj) == 0 {
-		return nil, fmt.Errorf("not found key")
-	}
-
-	//final
-	if err := ctx.FindObjectsFinal(ss); err != nil {
-		return nil, fmt.Errorf("failed to finalize finding key: %v", err)
-	}
-
-	return obj, nil
-}
 
 func GetContext(modulePath string) (*pkcs11.Ctx, error) {
 	ctx := pkcs11.New(modulePath)
@@ -145,6 +41,124 @@ func GetSession(ctx *pkcs11.Ctx, slotID uint, pin string) (pkcs11.SessionHandle,
 func FinishSession(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle) {
 	ctx.Logout(ss)
 	ctx.CloseSession(ss)
+}
+
+// secret key
+func CreateSecretKey(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, label string) (pkcs11.ObjectHandle, error) {
+	aesKeyTemplate := []*pkcs11.Attribute{
+		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_SECRET_KEY), // O
+		pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_AES),     // O
+		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
+		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
+		pkcs11.NewAttribute(pkcs11.CKA_ENCRYPT, true),
+		pkcs11.NewAttribute(pkcs11.CKA_DECRYPT, true),
+		pkcs11.NewAttribute(pkcs11.CKA_SENSITIVE, true),
+		pkcs11.NewAttribute(pkcs11.CKA_EXTRACTABLE, true),
+		pkcs11.NewAttribute(pkcs11.CKA_VALUE_LEN, 32),
+	}
+	return ctx.GenerateKey(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_AES_KEY_GEN, nil)}, aesKeyTemplate)
+}
+
+// RSA key pair: public and private key
+func CreateRSAKeyPair(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, label string) (pkcs11.ObjectHandle, pkcs11.ObjectHandle, error) {
+	publicKeyTemplate := []*pkcs11.Attribute{
+		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_PUBLIC_KEY),
+		pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_RSA),
+		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
+		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
+		pkcs11.NewAttribute(pkcs11.CKA_VERIFY, true),
+		pkcs11.NewAttribute(pkcs11.CKA_ENCRYPT, true),
+		pkcs11.NewAttribute(pkcs11.CKA_PUBLIC_EXPONENT, []byte{1, 0, 1}),
+		pkcs11.NewAttribute(pkcs11.CKA_MODULUS_BITS, 2048), // M
+	}
+	privateKeyTemplate := []*pkcs11.Attribute{
+		pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_PRIVATE_KEY),
+		pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_RSA),
+		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
+		pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
+		pkcs11.NewAttribute(pkcs11.CKA_SIGN, true),
+		pkcs11.NewAttribute(pkcs11.CKA_DECRYPT, true),
+		pkcs11.NewAttribute(pkcs11.CKA_SENSITIVE, true),
+		pkcs11.NewAttribute(pkcs11.CKA_EXTRACTABLE, true),
+	}
+	return ctx.GenerateKeyPair(ss,
+		[]*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN, nil)},
+		publicKeyTemplate, privateKeyTemplate)
+}
+
+func FindKeys(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, keyClass uint, label string) ([]pkcs11.ObjectHandle, error) {
+	searchTemplate := []*pkcs11.Attribute{
+		pkcs11.NewAttribute(pkcs11.CKA_LABEL, label),
+		pkcs11.NewAttribute(pkcs11.CKA_CLASS, keyClass),
+	}
+
+	// init
+	if err := ctx.FindObjectsInit(ss, searchTemplate); err != nil {
+		return nil, fmt.Errorf("failed to init finding key: %v", err)
+	}
+
+	// finding
+	obj, _, err := ctx.FindObjects(ss, 1)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find key %v", err)
+	}
+	if len(obj) == 0 {
+		return nil, fmt.Errorf("not found key")
+	}
+
+	//final
+	if err := ctx.FindObjectsFinal(ss); err != nil {
+		return nil, fmt.Errorf("failed to finalize finding key: %v", err)
+	}
+
+	return obj, nil
+}
+
+func RemoveKey(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, obj pkcs11.ObjectHandle) error {
+	if err := ctx.DestroyObject(ss, obj); err != nil {
+		return fmt.Errorf("failed to remove key: %v", err)
+	}
+	return nil
+}
+
+// encryption
+func Encrypt(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, mech uint, plainText, iv []byte) ([]byte, error) {
+	if err := ctx.EncryptInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(mech, iv)}, key); err != nil {
+		return nil, err
+	}
+
+	cipher, err := ctx.Encrypt(ss, plainText)
+	if err != nil {
+		return nil, err
+	}
+
+	return cipher, nil
+}
+
+func genIV(l int) []byte {
+	b := make([]byte, l)
+
+	_, err := io.ReadFull(rand.Reader, b)
+	if err != nil {
+		fmt.Printf("failed to generate iv: %v", err)
+		return nil
+	}
+
+	return b
+}
+
+// decryption
+func Decrypt(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, mech uint, cipher, iv []byte) ([]byte, error) {
+	if err := ctx.DecryptInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(mech, iv)}, key); err != nil {
+		return nil, err
+	}
+
+	decrypted, err := ctx.Decrypt(ss, cipher)
+	if err != nil {
+		return nil, err
+	}
+
+	return decrypted, nil
 }
 
 // pkcs7Pad right-pads the b slice, so its length becomes the multiply of the blocksize.

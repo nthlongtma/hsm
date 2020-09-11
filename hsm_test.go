@@ -16,7 +16,6 @@ const (
 	labelRSAKey    = "rsa"
 
 	plainText = "kbtg-tma team building"
-	iv        = "0123456789abcdef"
 )
 
 func TestGetContext(t *testing.T) {
@@ -189,8 +188,10 @@ func TestSymmetric(t *testing.T) {
 	t.Run("Symmetric", func(t *testing.T) {
 		t.Run("ECB", func(t *testing.T) {
 			cipher, decrypted := []byte{}, []byte{}
+			iv := genIV(16)
+
 			t.Run("Encrypt", func(t *testing.T) {
-				cipher, err = Encrypt(ctx, ss, obj, pkcs11.CKM_AES_ECB, padded, []byte(iv))
+				cipher, err = Encrypt(ctx, ss, obj, pkcs11.CKM_AES_ECB, padded, iv)
 				if err != nil {
 					t.Error(err)
 				}
@@ -198,7 +199,7 @@ func TestSymmetric(t *testing.T) {
 			})
 
 			t.Run("Decrypt", func(t *testing.T) {
-				decrypted, err = Decrypt(ctx, ss, obj, pkcs11.CKM_AES_ECB, cipher, []byte(iv))
+				decrypted, err = Decrypt(ctx, ss, obj, pkcs11.CKM_AES_ECB, cipher, iv)
 				if err != nil {
 					t.Error(err)
 				}
@@ -214,8 +215,10 @@ func TestSymmetric(t *testing.T) {
 
 		t.Run("CBC", func(t *testing.T) {
 			cipher, decrypted := []byte{}, []byte{}
+			iv := genIV(16)
+
 			t.Run("Encrypt", func(t *testing.T) {
-				cipher, err = Encrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC, padded, []byte(iv))
+				cipher, err = Encrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC, padded, iv)
 				if err != nil {
 					t.Error(err)
 				}
@@ -223,7 +226,7 @@ func TestSymmetric(t *testing.T) {
 			})
 
 			t.Run("Decrypt", func(t *testing.T) {
-				decrypted, err = Decrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC, cipher, []byte(iv))
+				decrypted, err = Decrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC, cipher, iv)
 				if err != nil {
 					t.Error(err)
 				}
@@ -240,8 +243,10 @@ func TestSymmetric(t *testing.T) {
 		t.Run("CBC-PAD", func(t *testing.T) { // auto pading
 			t.Run("CBC-PAD", func(t *testing.T) {
 				cipher, decrypted := []byte{}, []byte{}
+				iv := genIV(16)
+
 				t.Run("Encrypt", func(t *testing.T) {
-					cipher, err = Encrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, []byte(plainText), []byte(iv))
+					cipher, err = Encrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, []byte(plainText), iv)
 					if err != nil {
 						t.Error(err)
 					}
@@ -249,7 +254,7 @@ func TestSymmetric(t *testing.T) {
 				})
 
 				t.Run("Decrypt", func(t *testing.T) {
-					decrypted, err = Decrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, cipher, []byte(iv))
+					decrypted, err = Decrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, cipher, iv)
 					if err != nil {
 						t.Error(err)
 					}
@@ -435,15 +440,17 @@ func TestAsymmetric(t *testing.T) {
 	cipher, decrypted := []byte{}, []byte{}
 
 	t.Run("Asymmetric", func(t *testing.T) {
+		iv := genIV(16)
+
 		t.Run("Encrypt", func(t *testing.T) { // encrypt with public key
-			cipher, err = Encrypt(ctx, ss, pbk, pkcs11.CKM_RSA_PKCS, []byte(plainText), []byte(iv))
+			cipher, err = Encrypt(ctx, ss, pbk, pkcs11.CKM_RSA_PKCS, []byte(plainText), iv)
 			if err != nil {
 				t.Error(err)
 			}
 			t.Logf("cipher: %s", base64.StdEncoding.EncodeToString(cipher))
 		})
 		t.Run("Decrypt", func(t *testing.T) { // decrypt with private key
-			decrypted, err = Decrypt(ctx, ss, pvk, pkcs11.CKM_RSA_PKCS, cipher, []byte(iv))
+			decrypted, err = Decrypt(ctx, ss, pvk, pkcs11.CKM_RSA_PKCS, cipher, iv)
 			if err != nil {
 				t.Error(err)
 			}
