@@ -24,6 +24,15 @@ func FinishContext(ctx *pkcs11.Ctx) {
 }
 
 func GetSession(ctx *pkcs11.Ctx, slotID uint, pin string) (pkcs11.SessionHandle, error) {
+	// get the fist slot if slotID was not provided
+	if slotID == 0 {
+		sl, err := ctx.GetSlotList(true)
+		if err != nil {
+			return 0, fmt.Errorf("failed to get slot list: %v", err)
+		}
+		slotID = sl[0]
+	}
+
 	// open session
 	ss, err := ctx.OpenSession(slotID, pkcs11.CKF_SERIAL_SESSION|pkcs11.CKF_RW_SESSION)
 	if err != nil {

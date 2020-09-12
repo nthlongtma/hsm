@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"log"
 )
 
@@ -17,17 +18,17 @@ func main() {
 	// }
 	// fmt.Printf("config: %+v\n", *conf)
 
-	XOR()
+	// XOR()
 
 	// log.Println("simple encryption and decryption - XOR cipher")
-	// plain := []byte("This is a secret message.")
-	// key := []byte("secret")
+	plain := []byte("This is a secret message.")
+	key := []byte("secret")
 
-	// cipher := SimpleEncrypt(plain, key)
-	// log.Printf("cipher: %s", base64.StdEncoding.EncodeToString(cipher))
+	cipher := SimpleEncrypt(plain, key)
+	log.Printf("cipher: %s", base64.StdEncoding.EncodeToString(cipher))
 
-	// decrypted := SimpleDecrypt(cipher, key)
-	// log.Printf("decrypted: %s", decrypted)
+	decrypted := SimpleDecrypt(cipher, key)
+	log.Printf("decrypted: %s", decrypted)
 }
 
 // XOR example
@@ -39,9 +40,9 @@ func XOR() {
 	// log.Printf("p^p: %08b = %[1]v", p^p)
 	// log.Printf("p^0: %08b = %[1]v", p^0)
 
-	// c := p ^ k
-	// log.Printf("c  : %08b = %[1]v", c)
-	// log.Printf("d  : %08b = %[1]v", c^k) // c ^ k = p ^ k ^ K = p ^ 0 = p
+	c := p ^ k
+	log.Printf("c  : %08b = %[1]v", c)
+	log.Printf("d  : %08b = %[1]v", c^k) // c ^ k = p ^ k ^ K = p ^ 0 = p
 }
 
 func SimpleEncrypt(plain, key []byte) []byte {
