@@ -32,7 +32,8 @@ func TestGetSession(t *testing.T) {
 		t.Error(err)
 	}
 	defer FinishContext(ctx)
-	ss, err := GetSession(ctx, slotID, pin)
+
+	ss, err := GetSession(ctx, 0, pin)
 	if err != nil {
 		t.Error(err)
 	}
@@ -76,13 +77,18 @@ func TestGetMech(t *testing.T) {
 	}
 	defer FinishContext(ctx)
 
-	mechs, err := ctx.GetMechanismList(slotID)
+	sl, err := ctx.GetSlotList(true)
+	if err != nil {
+		t.Error(err)
+	}
+
+	mechs, err := ctx.GetMechanismList(sl[0])
 	if err != nil {
 		t.Error(err)
 	}
 	t.Logf("mechs: %+v", mechs)
 
-	info, err := ctx.GetMechanismInfo(slotID, mechs)
+	info, err := ctx.GetMechanismInfo(sl[0], mechs)
 	if err != nil {
 		t.Error(err)
 	}
@@ -97,7 +103,7 @@ func TestCreateSecretKey(t *testing.T) {
 	}
 	defer FinishContext(ctx)
 
-	ss, err := GetSession(ctx, slotID, pin)
+	ss, err := GetSession(ctx, 0, pin)
 	if err != nil {
 		t.Error(err)
 	}
@@ -120,7 +126,7 @@ func TestFindSecretKeys(t *testing.T) {
 	}
 	defer FinishContext(ctx)
 
-	ss, err := GetSession(ctx, slotID, pin)
+	ss, err := GetSession(ctx, 0, pin)
 	if err != nil {
 		t.Error(err)
 	}
@@ -144,7 +150,7 @@ func TestRemoveSecretKey(t *testing.T) {
 	}
 	defer FinishContext(ctx)
 
-	ss, err := GetSession(ctx, slotID, pin)
+	ss, err := GetSession(ctx, 0, pin)
 	if err != nil {
 		t.Error(err)
 	}
@@ -171,7 +177,7 @@ func TestSymmetric(t *testing.T) {
 	}
 	defer FinishContext(ctx)
 
-	ss, err := GetSession(ctx, slotID, pin)
+	ss, err := GetSession(ctx, 0, pin)
 	if err != nil {
 		t.Error(err)
 	}
@@ -278,7 +284,7 @@ func TestCreateRSAKeyPair(t *testing.T) {
 	}
 	defer FinishContext(ctx)
 
-	ss, err := GetSession(ctx, slotID, pin)
+	ss, err := GetSession(ctx, 0, pin)
 	if err != nil {
 		t.Error(err)
 	}
@@ -301,7 +307,7 @@ func TestFindRSAKeyPair(t *testing.T) {
 	}
 	defer FinishContext(ctx)
 
-	ss, err := GetSession(ctx, slotID, pin)
+	ss, err := GetSession(ctx, 0, pin)
 	if err != nil {
 		t.Error(err)
 	}
@@ -336,7 +342,7 @@ func TestRemoveRSAKeyPair(t *testing.T) {
 	}
 	defer FinishContext(ctx)
 
-	ss, err := GetSession(ctx, slotID, pin)
+	ss, err := GetSession(ctx, 0, pin)
 	if err != nil {
 		t.Error(err)
 	}
@@ -376,7 +382,7 @@ func TestSignAndVerify(t *testing.T) {
 	}
 	defer FinishContext(ctx)
 
-	ss, err := GetSession(ctx, slotID, pin)
+	ss, err := GetSession(ctx, 0, pin)
 	if err != nil {
 		t.Error(err)
 	}
@@ -424,7 +430,7 @@ func TestAsymmetric(t *testing.T) {
 	}
 	defer FinishContext(ctx)
 
-	ss, err := GetSession(ctx, slotID, pin)
+	ss, err := GetSession(ctx, 0, pin)
 	if err != nil {
 		t.Error(err)
 	}
