@@ -5,3 +5,15 @@ hsm:
   key_type: secret
   n2k_label: "n2k-master-key"
   iv_size: 16
+
+servers:
+  http:
+    port: 8888
+    path:
+      encrypt: "/api/v1/encrypt"
+      decrypt: "/api/v1/decrypt"
+  grpc:
+    port: 9999
+    path:
+      encrypt: "/api/v1/encrypt"
+      decrypt: "/api/v1/decrypt"

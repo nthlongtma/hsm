@@ -2,13 +2,12 @@ package configs
 
 import (
 	"fmt"
-	"hsm/models"
 
 	"github.com/spf13/viper"
 )
 
-func LoadConfig(path, name string) *models.Config {
-	conf := &models.Config{}
+func LoadConfig(path, name string) *Config {
+	conf := &Config{}
 	vp := viper.New()
 	vp.AddConfigPath(path)
 	vp.SetConfigName(name)

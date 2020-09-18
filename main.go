@@ -2,10 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"hsm/configs"
-	hsm_client "hsm/pkg/hsm-client"
-	"hsm/pkg/server"
-	"net/http"
+	hsm_api "hsm/pkg/hsm-api"
+	http_server "hsm/pkg/http-server"
 )
 
 const (
@@ -20,29 +24,24 @@ func main() {
 		panic("failed to load config")
 	}
 	fmt.Printf("config: %+v\n", *conf)
-
 	// init hsm
-	ctx, err := hsm_client.GetContext(conf.ModulePath)
+	ctx, err := hsm_api.GetContext(conf.ModulePath)
 	if err != nil {
 		panic(err)
 	}
-	defer hsm_client.FinishContext(ctx)
 
-	ss, err := hsm_client.GetSession(ctx, conf.HSM.SlotID, conf.HSM.Pin)
+	ss, err := hsm_api.GetSession(ctx, conf.HSM.SlotID, conf.HSM.Pin)
 	if err != nil {
 		panic(err)
 	}
-	defer hsm_client.FinishSession(ctx, ss)
 
-	hsm := hsm_client.NewHSM(ctx, ss)
+	// http server
+	s := http_server.NewServer(conf, ctx, ss)
+	go s.Start()
+	defer s.Stop()
 
-	// server
-	s := server.NewServer(conf, hsm)
-
-	http.HandleFunc("/api/v1/encrypt", s.HandleEncrypt)
-	http.HandleFunc("/api/v1/decrypt", s.HandleDecrypt)
-
-	if err := http.ListenAndServe(":8888", nil); err != nil {
-		panic(err)
-	}
+	sign := make(chan os.Signal, 1)
+	signal.Notify(sign, syscall.SIGINT, syscall.SIGTERM)
+	<-sign
+	log.Println("server is exiting....")
 }
