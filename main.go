@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"hsm/configs"
+	grpc_server "hsm/pkg/grpc-server"
 	hsm_api "hsm/pkg/hsm-api"
 	http_server "hsm/pkg/http-server"
 )
@@ -38,10 +39,15 @@ func main() {
 	// http server
 	s := http_server.NewServer(conf, ctx, ss)
 	go s.Start()
-	defer s.Stop()
+
+	// grpc server
+	g := grpc_server.NewServer(conf, ctx, ss)
+	go g.Start()
 
 	sign := make(chan os.Signal, 1)
 	signal.Notify(sign, syscall.SIGINT, syscall.SIGTERM)
 	<-sign
 	log.Println("server is exiting....")
+	s.Stop()
+	g.Stop()
 }

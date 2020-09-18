@@ -33,6 +33,7 @@ func (s Server) Start() {
 	http.HandleFunc(s.conf.Servers.HTTP.Path.Encrypt, s.HandleEncrypt)
 	http.HandleFunc(s.conf.Servers.HTTP.Path.Decrypt, s.HandleDecrypt)
 
+	log.Printf("start http at port: %s", s.conf.Servers.HTTP.Port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", s.conf.Servers.HTTP.Port), nil); err != nil {
 		panic(err)
 	}
