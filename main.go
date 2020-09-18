@@ -1,8 +1,9 @@
 package main
 
 import (
-	"encoding/base64"
-	"log"
+	"encoding/json"
+	"fmt"
+	"net/http"
 )
 
 const (
@@ -12,65 +13,39 @@ const (
 
 func main() {
 	// read config
-	// conf := LoadConfig(configPath, configName)
-	// if conf == nil {
-	// 	panic("failed to load config")
-	// }
-	// fmt.Printf("config: %+v\n", *conf)
+	conf := LoadConfig(configPath, configName)
+	if conf == nil {
+		panic("failed to load config")
+	}
+	fmt.Printf("config: %+v\n", *conf)
 
-	// XOR()
+	// init hsm
+	ctx, err := GetContext(conf.ModulePath)
+	if err != nil {
+		panic(err)
+	}
+	defer FinishContext(ctx)
 
-	// log.Println("simple encryption and decryption - XOR cipher")
-	plain := []byte("This is a secret message.")
-	key := []byte("secret")
+	ss, err := GetSession(ctx, conf.HSM.SlotID, conf.HSM.Pin)
+	if err != nil {
+		panic(err)
+	}
+	defer FinishSession(ctx, ss)
 
-	cipher := SimpleEncrypt(plain, key)
-	log.Printf("cipher: %s", base64.StdEncoding.EncodeToString(cipher))
+	hsm := NewHSM(ctx, ss)
 
-	decrypted := SimpleDecrypt(cipher, key)
-	log.Printf("decrypted: %s", decrypted)
+	// server
+	s := NewServer(conf, hsm)
+
+	http.HandleFunc("/api/v1/encrypt", s.HandleEncrypt)
+	http.HandleFunc("/api/v1/decrypt", s.HandleDecrypt)
+
+	if err := http.ListenAndServe(":8888", nil); err != nil {
+		panic(err)
+	}
 }
 
-// XOR example
-func XOR() {
-	p, k := 19, 20
-
-	log.Printf("k  : %08b = %[1]v", k)
-	log.Printf("p  : %08b = %[1]v", p)
-	// log.Printf("p^p: %08b = %[1]v", p^p)
-	// log.Printf("p^0: %08b = %[1]v", p^0)
-
-	c := p ^ k
-	log.Printf("c  : %08b = %[1]v", c)
-	log.Printf("d  : %08b = %[1]v", c^k) // c ^ k = p ^ k ^ K = p ^ 0 = p
-}
-
-func SimpleEncrypt(plain, key []byte) []byte {
-	cipher := make([]byte, 0)
-
-	if len(key) == 0 {
-		return nil
-	}
-
-	for i := range plain {
-		c := plain[i] ^ key[i%len(key)]
-		cipher = append(cipher, c)
-	}
-
-	return cipher
-}
-
-func SimpleDecrypt(cipher, key []byte) []byte {
-	decrypted := make([]byte, 0)
-
-	if len(key) == 0 {
-		return nil
-	}
-
-	for i := range cipher {
-		d := cipher[i] ^ key[i%len(key)]
-		decrypted = append(decrypted, d)
-	}
-
-	return decrypted
+func ToJson(v interface{}) []byte {
+	b, _ := json.Marshal(v)
+	return b
 }

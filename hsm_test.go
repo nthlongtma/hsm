@@ -10,10 +10,11 @@ import (
 
 const (
 	modulePath     = "./module/libsofthsm2.so"
-	slotID         = 866444829
-	pin            = "12345678"
+	slotID         = 1265156262
+	pin            = "654321"
 	labelSecretKey = "secret"
 	labelRSAKey    = "rsa"
+	labelN2kKey    = "n2k-master-key"
 
 	plainText = "kbtg-tma team building"
 )
@@ -133,7 +134,7 @@ func TestFindSecretKeys(t *testing.T) {
 	defer FinishSession(ctx, ss)
 
 	t.Run("Find-Secret-Key", func(t *testing.T) {
-		objs, err := FindKeys(ctx, ss, pkcs11.CKO_SECRET_KEY, labelSecretKey)
+		objs, err := FindKeys(ctx, ss, pkcs11.CKO_SECRET_KEY, labelN2kKey)
 		if err != nil {
 			t.Log("not found secret key")
 		} else {
@@ -183,11 +184,18 @@ func TestSymmetric(t *testing.T) {
 	}
 	defer FinishSession(ctx, ss)
 
-	obj, err := CreateSecretKey(ctx, ss, "test-decrypt-symmetric")
+	// obj, err := CreateSecretKey(ctx, ss, "test-decrypt-symmetric")
+	// if err != nil {
+	// 	t.Error(err)
+	// }
+	// defer RemoveKey(ctx, ss, obj)
+
+	// test the n2k aes key imported
+	objs, err := FindKeys(ctx, ss, pkcs11.CKO_SECRET_KEY, labelN2kKey)
 	if err != nil {
 		t.Error(err)
 	}
-	defer RemoveKey(ctx, ss, obj)
+	obj := objs[0]
 
 	padded, _ := pkcs7Pad([]byte(plainText), 32)
 

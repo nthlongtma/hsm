@@ -10,6 +10,20 @@ import (
 	"github.com/gemalto/pkcs11"
 )
 
+type (
+	HSM struct {
+		ctx *pkcs11.Ctx
+		ss  pkcs11.SessionHandle
+	}
+)
+
+func NewHSM(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle) HSM {
+	return HSM{
+		ctx: ctx,
+		ss:  ss,
+	}
+}
+
 func GetContext(modulePath string) (*pkcs11.Ctx, error) {
 	ctx := pkcs11.New(modulePath)
 	if err := ctx.Initialize(); err != nil {
@@ -133,12 +147,12 @@ func RemoveKey(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, obj pkcs11.ObjectHandle
 // encryption
 func Encrypt(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, mech uint, plainText, iv []byte) ([]byte, error) {
 	if err := ctx.EncryptInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(mech, iv)}, key); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to init encrypt: %v", err)
 	}
 
 	cipher, err := ctx.Encrypt(ss, plainText)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to encrypt: %v", err)
 	}
 
 	return cipher, nil
@@ -159,12 +173,12 @@ func genIV(l int) []byte {
 // decryption
 func Decrypt(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, mech uint, cipher, iv []byte) ([]byte, error) {
 	if err := ctx.DecryptInit(ss, []*pkcs11.Mechanism{pkcs11.NewMechanism(mech, iv)}, key); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to init decrypt: %v", err)
 	}
 
 	decrypted, err := ctx.Decrypt(ss, cipher)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to decrypt: %v", err)
 	}
 
 	return decrypted, nil

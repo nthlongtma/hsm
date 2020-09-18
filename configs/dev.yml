@@ -1,6 +1,7 @@
 module_path: "./module/libsofthsm2.so"
 hsm:
-  slot_id: 866444829
-  pin: "12345678"
+  slot_id: 1265156262
+  pin: "654321"
   key_type: secret
-  token_label: "master-key"
+  n2k_label: "n2k-master-key"
+  iv_size: 16
