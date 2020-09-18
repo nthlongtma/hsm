@@ -1,4 +1,4 @@
-package main
+package hsm_client
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	modulePath     = "./module/libsofthsm2.so"
+	modulePath     = "../../module/libsofthsm2.so"
 	slotID         = 1265156262
 	pin            = "654321"
 	labelSecretKey = "secret"
@@ -202,7 +202,7 @@ func TestSymmetric(t *testing.T) {
 	t.Run("Symmetric", func(t *testing.T) {
 		t.Run("ECB", func(t *testing.T) {
 			cipher, decrypted := []byte{}, []byte{}
-			iv := genIV(16)
+			iv := GenIV(16)
 
 			t.Run("Encrypt", func(t *testing.T) {
 				cipher, err = Encrypt(ctx, ss, obj, pkcs11.CKM_AES_ECB, padded, iv)
@@ -229,7 +229,7 @@ func TestSymmetric(t *testing.T) {
 
 		t.Run("CBC", func(t *testing.T) {
 			cipher, decrypted := []byte{}, []byte{}
-			iv := genIV(16)
+			iv := GenIV(16)
 
 			t.Run("Encrypt", func(t *testing.T) {
 				cipher, err = Encrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC, padded, iv)
@@ -257,7 +257,7 @@ func TestSymmetric(t *testing.T) {
 		t.Run("CBC-PAD", func(t *testing.T) { // auto pading
 			t.Run("CBC-PAD", func(t *testing.T) {
 				cipher, decrypted := []byte{}, []byte{}
-				iv := genIV(16)
+				iv := GenIV(16)
 
 				t.Run("Encrypt", func(t *testing.T) {
 					cipher, err = Encrypt(ctx, ss, obj, pkcs11.CKM_AES_CBC_PAD, []byte(plainText), iv)
@@ -454,7 +454,7 @@ func TestAsymmetric(t *testing.T) {
 	cipher, decrypted := []byte{}, []byte{}
 
 	t.Run("Asymmetric", func(t *testing.T) {
-		iv := genIV(16)
+		iv := GenIV(16)
 
 		t.Run("Encrypt", func(t *testing.T) { // encrypt with public key
 			cipher, err = Encrypt(ctx, ss, pbk, pkcs11.CKM_RSA_PKCS, []byte(plainText), iv)

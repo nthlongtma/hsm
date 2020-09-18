@@ -1,4 +1,4 @@
-package main
+package hsm_client
 
 import (
 	"bytes"
@@ -12,15 +12,15 @@ import (
 
 type (
 	HSM struct {
-		ctx *pkcs11.Ctx
-		ss  pkcs11.SessionHandle
+		Ctx *pkcs11.Ctx
+		Ss  pkcs11.SessionHandle
 	}
 )
 
 func NewHSM(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle) HSM {
 	return HSM{
-		ctx: ctx,
-		ss:  ss,
+		Ctx: ctx,
+		Ss:  ss,
 	}
 }
 
@@ -158,7 +158,7 @@ func Encrypt(ctx *pkcs11.Ctx, ss pkcs11.SessionHandle, key pkcs11.ObjectHandle, 
 	return cipher, nil
 }
 
-func genIV(l int) []byte {
+func GenIV(l int) []byte {
 	b := make([]byte, l)
 
 	_, err := io.ReadFull(rand.Reader, b)

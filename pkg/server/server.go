@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"encoding/base64"
@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"hsm/models"
+	hsm_client "hsm/pkg/hsm-client"
 
 	"github.com/gemalto/pkcs11"
 )
@@ -15,11 +16,11 @@ import (
 type (
 	Server struct {
 		conf *models.Config
-		hsm  HSM
+		hsm  hsm_client.HSM
 	}
 )
 
-func NewServer(conf *models.Config, hsm HSM) Server {
+func NewServer(conf *models.Config, hsm hsm_client.HSM) Server {
 	return Server{conf: conf, hsm: hsm}
 }
 
@@ -115,13 +116,13 @@ func (s Server) HandleDecrypt(w http.ResponseWriter, r *http.Request) {
 
 // encrypt with pre-generated iv then append the iv to the output.
 func (s Server) encrypt(keyClass uint, keyLabel string, plainText []byte) ([]byte, error) {
-	obj, err := FindKeys(s.hsm.ctx, s.hsm.ss, keyClass, keyLabel)
+	obj, err := hsm_client.FindKeys(s.hsm.Ctx, s.hsm.Ss, keyClass, keyLabel)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find key: %v", err)
 	}
 
-	iv := genIV(s.conf.HSM.IVSize)
-	cipher, err := Encrypt(s.hsm.ctx, s.hsm.ss, obj[0], pkcs11.CKM_AES_CBC_PAD, plainText, iv)
+	iv := hsm_client.GenIV(s.conf.HSM.IVSize)
+	cipher, err := hsm_client.Encrypt(s.hsm.Ctx, s.hsm.Ss, obj[0], pkcs11.CKM_AES_CBC_PAD, plainText, iv)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encrypt: %v", err)
 	}
@@ -136,7 +137,7 @@ func (s Server) encrypt(keyClass uint, keyLabel string, plainText []byte) ([]byt
 
 // extract the iv from cipher and decrypt.
 func (s Server) decrypt(keyClass uint, keyLabel string, cipher []byte) ([]byte, error) {
-	obj, err := FindKeys(s.hsm.ctx, s.hsm.ss, keyClass, keyLabel)
+	obj, err := hsm_client.FindKeys(s.hsm.Ctx, s.hsm.Ss, keyClass, keyLabel)
 	if err != nil {
 		return nil, err
 	}
@@ -144,10 +145,15 @@ func (s Server) decrypt(keyClass uint, keyLabel string, cipher []byte) ([]byte, 
 	// extract iv and cipher
 	iv := cipher[:s.conf.HSM.IVSize]
 	c := cipher[s.conf.HSM.IVSize:]
-	plain, err := Decrypt(s.hsm.ctx, s.hsm.ss, obj[0], pkcs11.CKM_AES_CBC_PAD, c, iv)
+	plain, err := hsm_client.Decrypt(s.hsm.Ctx, s.hsm.Ss, obj[0], pkcs11.CKM_AES_CBC_PAD, c, iv)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt: %v", err)
 	}
 
 	return plain, nil
+}
+
+func ToJson(v interface{}) []byte {
+	b, _ := json.Marshal(v)
+	return b
 }
