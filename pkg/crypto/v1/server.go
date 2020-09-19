@@ -25,7 +25,18 @@ type (
 	}
 )
 
-func NewServer(conf *configs.Config, ctx *pkcs11.Ctx, ss pkcs11.SessionHandle) Server {
+func NewServer(conf *configs.Config) Server {
+	// init hsm
+	ctx, err := hsm_api.GetContext(conf.ModulePath)
+	if err != nil {
+		panic(err)
+	}
+
+	ss, err := hsm_api.GetSession(ctx, conf.HSM.SlotID, conf.HSM.Pin)
+	if err != nil {
+		panic(err)
+	}
+
 	return Server{
 		conf: conf,
 		ctx:  ctx,
