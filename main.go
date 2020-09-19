@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"hsm/configs"
-	grpc_server "hsm/pkg/crypto"
+	grpc_server "hsm/pkg/crypto/v1"
 	hsm_api "hsm/pkg/hsm-api"
 	http_server "hsm/pkg/http-server"
 )

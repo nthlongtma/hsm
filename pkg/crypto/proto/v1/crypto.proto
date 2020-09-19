@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "crypto/v1;crypto";
+option go_package = ".;crypto";
 package crypto;
 import "google/api/annotations.proto";
 

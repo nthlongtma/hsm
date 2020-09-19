@@ -1,5 +1,7 @@
 GO_BUILD_ENV=GO111MODULE=on GOFLAGS=-mod=vendor 
-CRYPTO=pkg/crypto
+CRYPTO_IN=pkg/crypto/proto/v1
+CRYPTO_OUT=pkg/crypto/v1
+GOOGLE_API=pkg/crypto/proto
 
 all: vend build test
 
@@ -15,13 +17,13 @@ vend:
 	go mod vendor
 
 proto:
-	cd ${CRYPTO}; \
-	pwd; \
-	protoc -I ./proto \
-	 --go_out . --go_opt=plugins=grpc  --go_opt=paths=source_relative \
-	 --grpc-gateway_out . --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative \
-     ./proto/crypto/v1/crypto.proto
-
+	protoc \
+	 -I${GOOGLE_API} \
+	 --proto_path ${CRYPTO_IN} \
+	 --go_out ${CRYPTO_OUT} --go_opt=plugins=grpc \
+	 --grpc-gateway_out ${CRYPTO_OUT} --grpc-gateway_opt logtostderr=true \
+      crypto.proto
+	
 tool:
 	go install \
     github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
