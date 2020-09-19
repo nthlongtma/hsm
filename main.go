@@ -8,9 +8,8 @@ import (
 	"syscall"
 
 	"hsm/configs"
-	grpc_server "hsm/pkg/crypto"
+	grpc_server "hsm/pkg/crypto/v1"
 	hsm_api "hsm/pkg/hsm-api"
-	http_server "hsm/pkg/http-server"
 )
 
 const (
@@ -36,18 +35,17 @@ func main() {
 		panic(err)
 	}
 
-	// http server
-	s := http_server.NewServer(conf, ctx, ss)
-	go s.Start()
+	// // http server
+	// s := http_server.NewServer(conf, ctx, ss)
+	// go s.Start()
 
 	// grpc server
 	g := grpc_server.NewServer(conf, ctx, ss)
-	go g.Start()
+	g.Start()
 
 	sign := make(chan os.Signal, 1)
 	signal.Notify(sign, syscall.SIGINT, syscall.SIGTERM)
 	<-sign
 	log.Println("server is exiting....")
-	s.Stop()
 	g.Stop()
 }

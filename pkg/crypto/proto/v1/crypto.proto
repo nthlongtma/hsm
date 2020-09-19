@@ -1,0 +1,41 @@
+syntax = "proto3";
+option go_package = ".;crypto";
+package crypto;
+import "google/api/annotations.proto";
+
+message EncryptRequest {
+  string type = 1;
+  string plain_text = 2;
+}
+
+message EncryptResponse {
+  string error_code = 1;
+  string error_message = 2;
+  string cipher_text = 3;
+}
+
+message DecryptRequest {
+  string type = 1;
+  string cipher_text = 2;
+}
+
+message DecryptResponse {
+  string error_code = 1;
+  string error_message = 2;
+  string plain_text = 3;
+}
+
+service HSMService {
+  rpc Encrypt(EncryptRequest) returns (EncryptResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/encrypt"
+      body : "*"
+    };
+  };
+  rpc Decrypt(DecryptRequest) returns (DecryptResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/decrypt"
+      body : "*"
+    };
+  };
+}
