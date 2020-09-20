@@ -13,7 +13,7 @@ import (
 )
 
 func TestGRPC(t *testing.T) {
-	conn, err := grpc.Dial(":9999", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(":9999", grpc.WithInsecure(), grpc.WithBlock(), grpc.WithTimeout(time.Second*3))
 	if err != nil {
 		t.Error(err)
 	}
