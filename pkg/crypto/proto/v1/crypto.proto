@@ -5,24 +5,24 @@ import "google/api/annotations.proto";
 
 message EncryptRequest {
   string type = 1;
-  string plain_text = 2;
+  string plainText = 2;
 }
 
 message EncryptResponse {
-  string error_code = 1;
-  string error_message = 2;
-  string cipher_text = 3;
+  string errorCode = 1;
+  string errorMessage = 2;
+  string cipherText = 3;
 }
 
 message DecryptRequest {
   string type = 1;
-  string cipher_text = 2;
+  string cipherText = 2;
 }
 
 message DecryptResponse {
-  string error_code = 1;
-  string error_message = 2;
-  string plain_text = 3;
+  string errorCode = 1;
+  string errorMessage = 2;
+  string plainText = 3;
 }
 
 service HSMService {
