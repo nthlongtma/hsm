@@ -3,7 +3,9 @@ CRYPTO_IN=pkg/crypto/proto/v1
 CRYPTO_OUT=pkg/crypto/v1
 GOOGLE_API=pkg/crypto/proto
 
-all: vend build test
+.PHONY: vendor
+
+all: vendor build test
 
 build:
 	${GO_BUILD_ENV} go build
@@ -11,12 +13,13 @@ build:
 test:
 	go test -v -count=1
 
-vend:
+vendor:
 	go mod tidy
 	go mod download
 	go mod vendor
 
 proto:
+	find ./pkg/crypto/v1/ -name "*.pb.*" | xargs rm; \
 	protoc \
 	 -I${GOOGLE_API} \
 	 --proto_path ${CRYPTO_IN} \
@@ -25,7 +28,7 @@ proto:
       crypto.proto
 	
 tool:
-	go install \
-    github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
-    github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
-    github.com/golang/protobuf/protoc-gen-go
+	go get \
+		github.com/golang/protobuf/protoc-gen-go \
+		github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
+		github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2 
