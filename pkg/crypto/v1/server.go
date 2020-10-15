@@ -12,7 +12,7 @@ import (
 	hsm_api "hsm/pkg/hsm-api"
 
 	"github.com/gemalto/pkcs11"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 )
 
