@@ -5,7 +5,6 @@ go 1.14
 require (
 	github.com/gemalto/pkcs11 v0.0.0-20200103190246-913fe41b7161
 	github.com/golang/protobuf v1.4.3
-	github.com/grpc-ecosystem/grpc-gateway v1.9.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.0.0
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/spf13/viper v1.7.1

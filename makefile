@@ -19,13 +19,19 @@ vendor:
 	go mod vendor
 
 proto:
-	find ./pkg/crypto/v1/ -name "*.pb.*" | xargs rm; \
-	protoc \
+	@echo "remove old file"
+	@find ./pkg/crypto/v1/ -name "*.pb.*" | xargs rm
+
+	@echo "gen files"
+	@protoc \
 	 -I${GOOGLE_API} \
 	 --proto_path ${CRYPTO_IN} \
 	 --go_out ${CRYPTO_OUT} --go_opt=plugins=grpc \
 	 --grpc-gateway_out ${CRYPTO_OUT} --grpc-gateway_opt logtostderr=true \
       crypto.proto
+
+	@echo copy file to test
+	@cp -v ${CRYPTO_OUT}/*.pb.* test_client/v1
 	
 tool:
 	go get \
