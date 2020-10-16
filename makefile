@@ -45,7 +45,7 @@ proto: ## generate server and client stubs
 	@find ${CRYPTO} -name "*.pb.*" | xargs rm -v
 	@find ${TEST} -name "*.pb.*" | xargs rm -v
 	@find ${SWAGGER} -name "*.swagger.json" | xargs rm -v
-	@echo "${GREEN}|-DONE${RESET}"
+	@echo "${GREEN}DONE${RESET}"
 
 	@echo "${BLUE}|-generate new files to ${PROTO_OUT}${RESET}"
 	protoc \
@@ -57,19 +57,19 @@ proto: ## generate server and client stubs
 	 --grpc-gateway_out ${PROTO_OUT} --grpc-gateway_opt logtostderr=true \
 	 --openapiv2_out ${PROTO_OUT} \
       ${PROTO_IN}/*.proto
-	@echo "${GREEN}|-DONE${RESET}"
+	@echo "${GREEN}DONE${RESET}"
 
 	@echo "${BLUE}|-copy file to ${CRYPTO}${RESET}"
 	@cp -v ${PROTO_OUT}/*.go ${CRYPTO}
-	@echo "${GREEN}|-DONE${RESET}"
+	@echo "${GREEN}DONE${RESET}"
 
 	@echo "${BLUE}|-copy file to ${TEST}${RESET}"
 	@cp -v ${PROTO_OUT}/*.go ${TEST}
-	@echo "${GREEN}|-DONE${RESET}"
+	@echo "${GREEN}DONE${RESET}"
 
 	@echo "${BLUE}|-copy file to ${SWAGGER}${RESET}"
 	@cp -v ${PROTO_OUT}/*.swagger.json ${SWAGGER}
-	@echo "${GREEN}|-DONE${RESET}"
+	@echo "${GREEN}DONE${RESET}"
 	
 tool: ## get all the tools
 	${GO_BUILD_ENV} go get \
