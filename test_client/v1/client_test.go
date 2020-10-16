@@ -19,7 +19,7 @@ func TestGRPC(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := NewHSMServiceClient(conn)
+	c := NewCryptoClient(conn)
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second)
 

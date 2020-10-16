@@ -21,7 +21,7 @@ type (
 		conf *configs.Config
 		ctx  *pkcs11.Ctx
 		ss   pkcs11.SessionHandle
-		UnimplementedHSMServiceServer
+		UnimplementedCryptoServer
 	}
 )
 
@@ -56,7 +56,7 @@ func (s Server) StartGRPC() {
 	}
 
 	g := grpc.NewServer()
-	RegisterHSMServiceServer(g, s)
+	RegisterCryptoServer(g, s)
 
 	log.Printf("start grpc at port: %s", s.conf.Servers.GRPC.Port)
 	if err := g.Serve(lis); err != nil {
@@ -68,7 +68,7 @@ func (s Server) StartHTTP() {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
-	err := RegisterHSMServiceHandlerFromEndpoint(context.Background(), mux, fmt.Sprintf(":%s", s.conf.Servers.GRPC.Port), opts)
+	err := RegisterCryptoHandlerFromEndpoint(context.Background(), mux, fmt.Sprintf(":%s", s.conf.Servers.GRPC.Port), opts)
 	if err != nil {
 		panic(err)
 	}

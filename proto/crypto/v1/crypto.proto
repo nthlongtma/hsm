@@ -27,10 +27,11 @@ message DecryptResponse {
   string plainText = 3;
 }
 
-service HSMService {
+service Crypto {
   rpc Encrypt(EncryptRequest) returns(EncryptResponse) {
     option(google.api.http) = {post : "/api/v1/encrypt" body : "*"};
   };
+
   rpc Decrypt(DecryptRequest) returns(DecryptResponse) {
     option(google.api.http) = {post : "/api/v1/decrypt" body : "*"};
   };

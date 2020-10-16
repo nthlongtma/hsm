@@ -295,20 +295,20 @@ var file_crypto_proto_rawDesc = []byte{
 	0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x65, 0x72, 0x72, 0x6f,
 	0x72, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x1c, 0x0a, 0x09, 0x70, 0x6c, 0x61, 0x69,
 	0x6e, 0x54, 0x65, 0x78, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x70, 0x6c, 0x61,
-	0x69, 0x6e, 0x54, 0x65, 0x78, 0x74, 0x32, 0xbc, 0x01, 0x0a, 0x0a, 0x48, 0x53, 0x4d, 0x53, 0x65,
-	0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x56, 0x0a, 0x07, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74,
-	0x12, 0x16, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70,
-	0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74,
-	0x6f, 0x2e, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x22, 0x1a, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x14, 0x22, 0x0f, 0x2f, 0x61, 0x70, 0x69, 0x2f,
-	0x76, 0x31, 0x2f, 0x65, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x3a, 0x01, 0x2a, 0x12, 0x56, 0x0a,
-	0x07, 0x44, 0x65, 0x63, 0x72, 0x79, 0x70, 0x74, 0x12, 0x16, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74,
-	0x6f, 0x2e, 0x44, 0x65, 0x63, 0x72, 0x79, 0x70, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x17, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x44, 0x65, 0x63, 0x72, 0x79, 0x70,
-	0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1a, 0x82, 0xd3, 0xe4, 0x93, 0x02,
-	0x14, 0x22, 0x0f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x2f, 0x64, 0x65, 0x63, 0x72, 0x79,
-	0x70, 0x74, 0x3a, 0x01, 0x2a, 0x42, 0x0a, 0x5a, 0x08, 0x2e, 0x3b, 0x63, 0x72, 0x79, 0x70, 0x74,
-	0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x69, 0x6e, 0x54, 0x65, 0x78, 0x74, 0x32, 0xb8, 0x01, 0x0a, 0x06, 0x43, 0x72, 0x79, 0x70, 0x74,
+	0x6f, 0x12, 0x56, 0x0a, 0x07, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x12, 0x16, 0x2e, 0x63,
+	0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x45, 0x6e,
+	0x63, 0x72, 0x79, 0x70, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1a, 0x82,
+	0xd3, 0xe4, 0x93, 0x02, 0x14, 0x22, 0x0f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x2f, 0x65,
+	0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x3a, 0x01, 0x2a, 0x12, 0x56, 0x0a, 0x07, 0x44, 0x65, 0x63,
+	0x72, 0x79, 0x70, 0x74, 0x12, 0x16, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x44, 0x65,
+	0x63, 0x72, 0x79, 0x70, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x63,
+	0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x44, 0x65, 0x63, 0x72, 0x79, 0x70, 0x74, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1a, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x14, 0x22, 0x0f, 0x2f,
+	0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x2f, 0x64, 0x65, 0x63, 0x72, 0x79, 0x70, 0x74, 0x3a, 0x01,
+	0x2a, 0x42, 0x0a, 0x5a, 0x08, 0x2e, 0x3b, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -331,10 +331,10 @@ var file_crypto_proto_goTypes = []interface{}{
 	(*DecryptResponse)(nil), // 3: crypto.DecryptResponse
 }
 var file_crypto_proto_depIdxs = []int32{
-	0, // 0: crypto.HSMService.Encrypt:input_type -> crypto.EncryptRequest
-	2, // 1: crypto.HSMService.Decrypt:input_type -> crypto.DecryptRequest
-	1, // 2: crypto.HSMService.Encrypt:output_type -> crypto.EncryptResponse
-	3, // 3: crypto.HSMService.Decrypt:output_type -> crypto.DecryptResponse
+	0, // 0: crypto.Crypto.Encrypt:input_type -> crypto.EncryptRequest
+	2, // 1: crypto.Crypto.Decrypt:input_type -> crypto.DecryptRequest
+	1, // 2: crypto.Crypto.Encrypt:output_type -> crypto.EncryptResponse
+	3, // 3: crypto.Crypto.Decrypt:output_type -> crypto.DecryptResponse
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -425,108 +425,108 @@ var _ grpc.ClientConnInterface
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// HSMServiceClient is the client API for HSMService service.
+// CryptoClient is the client API for Crypto service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type HSMServiceClient interface {
+type CryptoClient interface {
 	Encrypt(ctx context.Context, in *EncryptRequest, opts ...grpc.CallOption) (*EncryptResponse, error)
 	Decrypt(ctx context.Context, in *DecryptRequest, opts ...grpc.CallOption) (*DecryptResponse, error)
 }
 
-type hSMServiceClient struct {
+type cryptoClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewHSMServiceClient(cc grpc.ClientConnInterface) HSMServiceClient {
-	return &hSMServiceClient{cc}
+func NewCryptoClient(cc grpc.ClientConnInterface) CryptoClient {
+	return &cryptoClient{cc}
 }
 
-func (c *hSMServiceClient) Encrypt(ctx context.Context, in *EncryptRequest, opts ...grpc.CallOption) (*EncryptResponse, error) {
+func (c *cryptoClient) Encrypt(ctx context.Context, in *EncryptRequest, opts ...grpc.CallOption) (*EncryptResponse, error) {
 	out := new(EncryptResponse)
-	err := c.cc.Invoke(ctx, "/crypto.HSMService/Encrypt", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/crypto.Crypto/Encrypt", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hSMServiceClient) Decrypt(ctx context.Context, in *DecryptRequest, opts ...grpc.CallOption) (*DecryptResponse, error) {
+func (c *cryptoClient) Decrypt(ctx context.Context, in *DecryptRequest, opts ...grpc.CallOption) (*DecryptResponse, error) {
 	out := new(DecryptResponse)
-	err := c.cc.Invoke(ctx, "/crypto.HSMService/Decrypt", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/crypto.Crypto/Decrypt", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// HSMServiceServer is the server API for HSMService service.
-type HSMServiceServer interface {
+// CryptoServer is the server API for Crypto service.
+type CryptoServer interface {
 	Encrypt(context.Context, *EncryptRequest) (*EncryptResponse, error)
 	Decrypt(context.Context, *DecryptRequest) (*DecryptResponse, error)
 }
 
-// UnimplementedHSMServiceServer can be embedded to have forward compatible implementations.
-type UnimplementedHSMServiceServer struct {
+// UnimplementedCryptoServer can be embedded to have forward compatible implementations.
+type UnimplementedCryptoServer struct {
 }
 
-func (*UnimplementedHSMServiceServer) Encrypt(context.Context, *EncryptRequest) (*EncryptResponse, error) {
+func (*UnimplementedCryptoServer) Encrypt(context.Context, *EncryptRequest) (*EncryptResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Encrypt not implemented")
 }
-func (*UnimplementedHSMServiceServer) Decrypt(context.Context, *DecryptRequest) (*DecryptResponse, error) {
+func (*UnimplementedCryptoServer) Decrypt(context.Context, *DecryptRequest) (*DecryptResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Decrypt not implemented")
 }
 
-func RegisterHSMServiceServer(s *grpc.Server, srv HSMServiceServer) {
-	s.RegisterService(&_HSMService_serviceDesc, srv)
+func RegisterCryptoServer(s *grpc.Server, srv CryptoServer) {
+	s.RegisterService(&_Crypto_serviceDesc, srv)
 }
 
-func _HSMService_Encrypt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Crypto_Encrypt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EncryptRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HSMServiceServer).Encrypt(ctx, in)
+		return srv.(CryptoServer).Encrypt(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/crypto.HSMService/Encrypt",
+		FullMethod: "/crypto.Crypto/Encrypt",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HSMServiceServer).Encrypt(ctx, req.(*EncryptRequest))
+		return srv.(CryptoServer).Encrypt(ctx, req.(*EncryptRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HSMService_Decrypt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Crypto_Decrypt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DecryptRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HSMServiceServer).Decrypt(ctx, in)
+		return srv.(CryptoServer).Decrypt(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/crypto.HSMService/Decrypt",
+		FullMethod: "/crypto.Crypto/Decrypt",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HSMServiceServer).Decrypt(ctx, req.(*DecryptRequest))
+		return srv.(CryptoServer).Decrypt(ctx, req.(*DecryptRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _HSMService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "crypto.HSMService",
-	HandlerType: (*HSMServiceServer)(nil),
+var _Crypto_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "crypto.Crypto",
+	HandlerType: (*CryptoServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Encrypt",
-			Handler:    _HSMService_Encrypt_Handler,
+			Handler:    _Crypto_Encrypt_Handler,
 		},
 		{
 			MethodName: "Decrypt",
-			Handler:    _HSMService_Decrypt_Handler,
+			Handler:    _Crypto_Decrypt_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

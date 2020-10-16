@@ -31,7 +31,7 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
-func request_HSMService_Encrypt_0(ctx context.Context, marshaler runtime.Marshaler, client HSMServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Crypto_Encrypt_0(ctx context.Context, marshaler runtime.Marshaler, client CryptoClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq EncryptRequest
 	var metadata runtime.ServerMetadata
 
@@ -48,7 +48,7 @@ func request_HSMService_Encrypt_0(ctx context.Context, marshaler runtime.Marshal
 
 }
 
-func local_request_HSMService_Encrypt_0(ctx context.Context, marshaler runtime.Marshaler, server HSMServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Crypto_Encrypt_0(ctx context.Context, marshaler runtime.Marshaler, server CryptoServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq EncryptRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_HSMService_Encrypt_0(ctx context.Context, marshaler runtime.M
 
 }
 
-func request_HSMService_Decrypt_0(ctx context.Context, marshaler runtime.Marshaler, client HSMServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Crypto_Decrypt_0(ctx context.Context, marshaler runtime.Marshaler, client CryptoClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DecryptRequest
 	var metadata runtime.ServerMetadata
 
@@ -82,7 +82,7 @@ func request_HSMService_Decrypt_0(ctx context.Context, marshaler runtime.Marshal
 
 }
 
-func local_request_HSMService_Decrypt_0(ctx context.Context, marshaler runtime.Marshaler, server HSMServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_Crypto_Decrypt_0(ctx context.Context, marshaler runtime.Marshaler, server CryptoServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DecryptRequest
 	var metadata runtime.ServerMetadata
 
@@ -99,24 +99,24 @@ func local_request_HSMService_Decrypt_0(ctx context.Context, marshaler runtime.M
 
 }
 
-// RegisterHSMServiceHandlerServer registers the http handlers for service HSMService to "mux".
-// UnaryRPC     :call HSMServiceServer directly.
+// RegisterCryptoHandlerServer registers the http handlers for service Crypto to "mux".
+// UnaryRPC     :call CryptoServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterHSMServiceHandlerFromEndpoint instead.
-func RegisterHSMServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server HSMServiceServer) error {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterCryptoHandlerFromEndpoint instead.
+func RegisterCryptoHandlerServer(ctx context.Context, mux *runtime.ServeMux, server CryptoServer) error {
 
-	mux.Handle("POST", pattern_HSMService_Encrypt_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Crypto_Encrypt_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/crypto.HSMService/Encrypt")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/crypto.Crypto/Encrypt")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_HSMService_Encrypt_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Crypto_Encrypt_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -124,22 +124,22 @@ func RegisterHSMServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_HSMService_Encrypt_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Crypto_Encrypt_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_HSMService_Decrypt_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Crypto_Decrypt_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/crypto.HSMService/Decrypt")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/crypto.Crypto/Decrypt")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_HSMService_Decrypt_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Crypto_Decrypt_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -147,16 +147,16 @@ func RegisterHSMServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_HSMService_Decrypt_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Crypto_Decrypt_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterHSMServiceHandlerFromEndpoint is same as RegisterHSMServiceHandler but
+// RegisterCryptoHandlerFromEndpoint is same as RegisterCryptoHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterHSMServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterCryptoHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -176,59 +176,59 @@ func RegisterHSMServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.Ser
 		}()
 	}()
 
-	return RegisterHSMServiceHandler(ctx, mux, conn)
+	return RegisterCryptoHandler(ctx, mux, conn)
 }
 
-// RegisterHSMServiceHandler registers the http handlers for service HSMService to "mux".
+// RegisterCryptoHandler registers the http handlers for service Crypto to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterHSMServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterHSMServiceHandlerClient(ctx, mux, NewHSMServiceClient(conn))
+func RegisterCryptoHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterCryptoHandlerClient(ctx, mux, NewCryptoClient(conn))
 }
 
-// RegisterHSMServiceHandlerClient registers the http handlers for service HSMService
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "HSMServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "HSMServiceClient"
+// RegisterCryptoHandlerClient registers the http handlers for service Crypto
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "CryptoClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "CryptoClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "HSMServiceClient" to call the correct interceptors.
-func RegisterHSMServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client HSMServiceClient) error {
+// "CryptoClient" to call the correct interceptors.
+func RegisterCryptoHandlerClient(ctx context.Context, mux *runtime.ServeMux, client CryptoClient) error {
 
-	mux.Handle("POST", pattern_HSMService_Encrypt_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Crypto_Encrypt_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/crypto.HSMService/Encrypt")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/crypto.Crypto/Encrypt")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_HSMService_Encrypt_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Crypto_Encrypt_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_HSMService_Encrypt_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Crypto_Encrypt_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_HSMService_Decrypt_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Crypto_Decrypt_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/crypto.HSMService/Decrypt")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/crypto.Crypto/Decrypt")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_HSMService_Decrypt_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Crypto_Decrypt_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_HSMService_Decrypt_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Crypto_Decrypt_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -236,13 +236,13 @@ func RegisterHSMServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 }
 
 var (
-	pattern_HSMService_Encrypt_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "encrypt"}, ""))
+	pattern_Crypto_Encrypt_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "encrypt"}, ""))
 
-	pattern_HSMService_Decrypt_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "decrypt"}, ""))
+	pattern_Crypto_Decrypt_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "decrypt"}, ""))
 )
 
 var (
-	forward_HSMService_Encrypt_0 = runtime.ForwardResponseMessage
+	forward_Crypto_Encrypt_0 = runtime.ForwardResponseMessage
 
-	forward_HSMService_Decrypt_0 = runtime.ForwardResponseMessage
+	forward_Crypto_Decrypt_0 = runtime.ForwardResponseMessage
 )
