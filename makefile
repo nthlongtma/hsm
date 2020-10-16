@@ -1,8 +1,12 @@
 SHELL:=/bin/bash
 GO_BUILD_ENV=GO111MODULE=on GOFLAGS=-mod=vendor 
-CRYPTO_IN=pkg/crypto/proto/v1
-CRYPTO_OUT=pkg/crypto/v1
-GOOGLE_API=pkg/crypto/proto
+PROTO_IN=proto/crypto/v1
+PROTO_OUT=proto/crypto/v1
+THIRD_PARTY=third_party
+
+CRYPTO=pkg/crypto/v1/
+TEST=test_client/v1
+SWAGGER=swagger
 
 # define standard colors
 BLACK        := $(shell tput -Txterm setaf 0)
@@ -21,37 +25,51 @@ TARGET_COLOR := $(BLUE)
 POUND = \#
 
 .SILENT:
-.PHONY: vendor
+.PHONY: vendor proto
 
 all: vendor build test
 
-build:
+build: ## build image.
 	${GO_BUILD_ENV} go build
 
-test:
-	go test -v -count=1
+test: ## run test.
+	go test -v -count=1 --race
 
-vendor:
+vendor: ## get all dependencies.
 	go mod tidy
 	go mod download
 	go mod vendor
 
-proto:
-	@echo "${GREEN}|-clean up old files${RESET}"
-	@find ./pkg/crypto/v1/ -name "*.pb.*" | xargs rm -v
+proto: ## generate server and client stubs
+	@echo "${BLUE}|-clean up old files from ${CRYPTO} ${TEST} ${SWAGGER}${RESET}"
+	@find ${CRYPTO} -name "*.pb.*" | xargs rm -v
+	@find ${TEST} -name "*.pb.*" | xargs rm -v
+	@find ${SWAGGER} -name "*.swagger.json" | xargs rm -v
+	@echo "${GREEN}|-DONE${RESET}"
 
-	@echo "${GREEN}|-generate new files to ${CRYPTO_OUT}${RESET}"
-	@protoc \
-	 -I ${GOOGLE_API} \
+	@echo "${BLUE}|-generate new files to ${PROTO_OUT}${RESET}"
+	protoc \
+	 -I ${THIRD_PARTY} \
 	 -I ${GOPATH}/src \
 	 -I ./vendor \
-	 --proto_path ${CRYPTO_IN} \
-	 --go_out ${CRYPTO_OUT} --go_opt=plugins=grpc \
-	 --grpc-gateway_out ${CRYPTO_OUT} --grpc-gateway_opt logtostderr=true \
-      crypto.proto
+	 --proto_path ${PROTO_IN} \
+	 --go_out ${PROTO_OUT} --go_opt=plugins=grpc \
+	 --grpc-gateway_out ${PROTO_OUT} --grpc-gateway_opt logtostderr=true \
+	 --openapiv2_out ${PROTO_OUT} \
+      ${PROTO_IN}/*.proto
+	@echo "${GREEN}|-DONE${RESET}"
 
-	@echo "${GREEN}|-copy file to test_client/v1${RESET}"
-	@cp -v ${CRYPTO_OUT}/*.pb.* test_client/v1
+	@echo "${BLUE}|-copy file to ${CRYPTO}${RESET}"
+	@cp -v ${PROTO_OUT}/*.go ${CRYPTO}
+	@echo "${GREEN}|-DONE${RESET}"
+
+	@echo "${BLUE}|-copy file to ${TEST}${RESET}"
+	@cp -v ${PROTO_OUT}/*.go ${TEST}
+	@echo "${GREEN}|-DONE${RESET}"
+
+	@echo "${BLUE}|-copy file to ${SWAGGER}${RESET}"
+	@cp -v ${PROTO_OUT}/*.swagger.json ${SWAGGER}
+	@echo "${GREEN}|-DONE${RESET}"
 	
 tool: ## get all the tools
 	${GO_BUILD_ENV} go get \
